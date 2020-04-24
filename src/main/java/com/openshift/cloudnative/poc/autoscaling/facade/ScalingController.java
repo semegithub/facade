@@ -1,29 +1,34 @@
 package com.openshift.cloudnative.poc.autoscaling.facade;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class ScalingController {
 
-	@GetMapping(path = "/init", produces = "text/html")
-	public String init() {
+	@GetMapping(path = "/", produces = "text/html")
+	@ApiOperation("Api status")
+	public String status() {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade on host " + hostname + "\n";
+
+		System.out.println(message);
+
+		return message;
+	}
+	
+	@GetMapping(path = "/lightCPUcall", produces = "text/html")
+	@ApiOperation("Light CPU call")
+	public String lightCPUcall() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + "\n";
 
@@ -45,8 +50,9 @@ public class ScalingController {
 //		return message;
 //	}
 
-	@GetMapping(path = "/facadedelayedredirect", produces = "text/html")
-	public String facadedelayedredirect() {
+	@GetMapping(path = "/highCPUcall", produces = "text/html")
+	@ApiOperation("Heavy CPU call")
+	public String highCPUcall() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + " - delayed redirect ";
 		for (int i = 0; i < 1000000; i++) {
@@ -68,21 +74,7 @@ public class ScalingController {
 				cipher.update("0123456789012345".getBytes());
 
 				byte[] data = cipher.doFinal();
-			} catch (IllegalBlockSizeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (BadPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			} catch (NoSuchProviderException e) {
-				e.printStackTrace();
-			} catch (NoSuchPaddingException e) {
-				e.printStackTrace();
-			} catch (InvalidKeyException e) {
-				e.printStackTrace();
-			} catch (InvalidAlgorithmParameterException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
