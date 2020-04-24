@@ -1,8 +1,5 @@
 package com.openshift.cloudnative.poc.autoscaling.facade;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -17,8 +14,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class ScalingController {
@@ -26,17 +25,30 @@ public class ScalingController {
 	@GetMapping(path = "/init")
 	public String init() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Host " + hostname + " is there \n";
+		String message = "Facade on host " + hostname + "\n";
 
 		System.out.println(message);
 
 		return message;
 	}
 
-	@GetMapping(path = "/redirect")
-	public String redirect() {
+	@GetMapping(path = "/facadelightredirect")
+	public String lightredirect() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Call " + hostname + " - high CPU ";
+		String message = "Facade on host " + hostname + " - light redirect ";
+
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject("http://localhost:8080/child/init", String.class);
+		message += result;
+
+		System.out.println(message);
+		return message;
+	}
+
+	@GetMapping(path = "/facadedelayedredirect")
+	public String facadedelayedredirect() {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade on host " + hostname + " - delayed redirect ";
 		for (int i = 0; i < 1000000; i++) {
 			try {
 				byte[] iv = new byte[16];
@@ -79,5 +91,4 @@ public class ScalingController {
 
 		return message;
 	}
-
 }
