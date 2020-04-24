@@ -19,7 +19,7 @@ public class ScalingController {
 	@ApiOperation("Api status")
 	public String status() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + "\n";
+		String message = "Facade ready on host " + hostname + "\n";
 
 		System.out.println(message);
 
