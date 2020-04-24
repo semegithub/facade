@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class ScalingController {
 
-	@GetMapping(path = "/init", produces = "application/text")
+	@GetMapping(path = "/init", produces = "text/html")
 	public String init() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + "\n";
@@ -45,7 +45,7 @@ public class ScalingController {
 //		return message;
 //	}
 
-	@GetMapping(path = "/facadedelayedredirect", produces = "application/text")
+	@GetMapping(path = "/facadedelayedredirect", produces = "text/html")
 	public String facadedelayedredirect() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + " - delayed redirect ";
