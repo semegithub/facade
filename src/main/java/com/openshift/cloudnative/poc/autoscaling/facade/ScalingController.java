@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class ScalingController {
 
-	@GetMapping(path = "/init")
+	@GetMapping(path = "/init", produces = "application/text")
 	public String init() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + "\n";
@@ -32,20 +32,20 @@ public class ScalingController {
 		return message;
 	}
 
-	@GetMapping(path = "/facadelightredirect")
-	public String lightredirect() {
-		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - light redirect ";
+//	@GetMapping(path = "/facadelightredirect", produces = "application/text")
+//	public String lightredirect() {
+//		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+//		String message = "Facade on host " + hostname + " - light redirect ";
+//
+//		RestTemplate restTemplate = new RestTemplate();
+//		String result = restTemplate.getForObject("http://localhost:8080/child/init", String.class);
+//		message += result;
+//
+//		System.out.println(message);
+//		return message;
+//	}
 
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject("http://localhost:8080/child/init", String.class);
-		message += result;
-
-		System.out.println(message);
-		return message;
-	}
-
-	@GetMapping(path = "/facadedelayedredirect")
+	@GetMapping(path = "/facadedelayedredirect", produces = "application/text")
 	public String facadedelayedredirect() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + " - delayed redirect ";
