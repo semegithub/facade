@@ -1,17 +1,23 @@
 package com.openshift.cloudnative.poc.autoscaling.facade;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.annotations.ApiOperation;
@@ -59,8 +65,19 @@ public class ScalingController {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("childLoopNumber",
 					childLoopNumber);
 			String uriBuilder = builder.build().encode().toUriString();
+			
+			// Prepare acceptable media type
+		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+		    acceptableMediaTypes.add(MediaType.TEXT_HTML);
+
+		    // Prepare header
+		    HttpHeaders headers = new HttpHeaders();
+		    headers.setAccept(acceptableMediaTypes);
+		    HttpEntity<String> entity = new HttpEntity<String>(headers);
+			
 			RestTemplate restTemplate = new RestTemplate();
-			String result = restTemplate.getForObject(url, String.class);
+			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+//			String result = restTemplate.getForObject(url, String.class);
 			message += result;
 		} catch (Exception e) {
 			message += e.getMessage();
