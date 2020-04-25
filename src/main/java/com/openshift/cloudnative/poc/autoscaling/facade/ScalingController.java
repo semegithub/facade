@@ -53,7 +53,7 @@ public class ScalingController {
 
 			RestTemplate restTemplate = new RestTemplate();
 			String result = restTemplate.getForObject(
-					"http://localhost:8080/child/childHighCPULoadAll?childLoopNumber={" + childLoopNumber + "}",
+					"http://localhost:8080/child/childHighCPULoadAll",
 					String.class);
 			message += result;
 		} catch (Exception e) {
