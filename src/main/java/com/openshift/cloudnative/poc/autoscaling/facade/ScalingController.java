@@ -72,7 +72,7 @@ public class ScalingController {
 		    HttpEntity<String> entity = new HttpEntity<String>(headers);
 			
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, childLoopNumber);
 //			String result = restTemplate.getForObject(url, String.class);
 			message += result.getBody();
 			message +=") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
