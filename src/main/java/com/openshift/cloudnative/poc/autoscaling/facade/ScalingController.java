@@ -24,6 +24,8 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class ScalingController {
+	
+	String url = "http://child-seme-lab-child.apps-crc.testing/child";
 
 	@GetMapping(path = "/", produces = "text/html")
 	@ApiOperation("API status")
@@ -53,18 +55,13 @@ public class ScalingController {
 			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
 			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - high CPU API redirect  ";
+		String message = "Facade on host " + hostname + " - high CPU API loadAll  ";
 
 		try {
 			long timer = System.currentTimeMillis();
 			generateCPU(loopNumber);
-			message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
-
-						
-			String url = "http://child-seme-lab-child.apps-crc.testing/child/childHighCPULoadAll";
-			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("childLoopNumber",
-					childLoopNumber);
-			String uriBuilder = builder.build().encode().toUriString();
+									
+			url += "/childHighCPULoadAll";
 			
 			// Prepare acceptable media type
 		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
@@ -78,13 +75,14 @@ public class ScalingController {
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 //			String result = restTemplate.getForObject(url, String.class);
-			message += result;
+			message += result.getBody().getBytes();
+			message +=" done in " + (System.currentTimeMillis() - timer) + "[ms]";
 		} catch (Exception e) {
 			message += e.getMessage();
 		} finally {
 			System.out.println(message);
-			return message;
 		}
+		return message;
 	}
 
 	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
