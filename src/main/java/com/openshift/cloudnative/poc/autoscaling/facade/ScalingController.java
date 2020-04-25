@@ -1,7 +1,6 @@
 package com.openshift.cloudnative.poc.autoscaling.facade;
 
 import java.security.SecureRandom;
-import java.util.Optional;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -56,6 +55,23 @@ public class ScalingController {
 		String result = restTemplate.getForObject(
 				"http://localhost:8080/child/highCPUCall?childLoopNumber={" + childLoopNumber + "}", String.class);
 		message += result;
+
+		System.out.println(message);
+		return message;
+	}
+	
+	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
+	public String highCPURedirectCall() {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade on host " + hostname + " - no CPU API redirect  ";
+
+		long timer = System.currentTimeMillis();
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(
+				"http://localhost:8080/child/noCPUCall", String.class);
+		message += result;
+		
+		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
 		System.out.println(message);
 		return message;
