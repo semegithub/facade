@@ -41,25 +41,29 @@ public class ScalingController {
 	}
 
 	@GetMapping(path = "/highCPUChildHighCPUcall", produces = "text/html")
-	public String highCPUChildHighCPUcall(
-			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
+	public String highCPUChildHighCPUcall(@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
 			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + " - high CPU API redirect  ";
 
-		long timer = System.currentTimeMillis();
-		generateCPU(loopNumber);
-		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
+		try {
+			long timer = System.currentTimeMillis();
+			generateCPU(loopNumber);
+			message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject(
-				"http://localhost:8080/child/childHighCPULoadAll?childLoopNumber={" + childLoopNumber + "}", String.class);
-		message += result;
-
-		System.out.println(message);
-		return message;
+			RestTemplate restTemplate = new RestTemplate();
+			String result = restTemplate.getForObject(
+					"http://localhost:8080/child/childHighCPULoadAll?childLoopNumber={" + childLoopNumber + "}",
+					String.class);
+			message += result;
+		} catch (Exception e) {
+			message += e.getMessage();
+		} finally {
+			System.out.println(message);
+			return message;
+		}
 	}
-	
+
 	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
 	public String highCPURedirectCall() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
@@ -67,10 +71,9 @@ public class ScalingController {
 
 		long timer = System.currentTimeMillis();
 		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject(
-				"http://localhost:8080/child/noCPUCall", String.class);
+		String result = restTemplate.getForObject("http://localhost:8080/child/noCPUCall", String.class);
 		message += result;
-		
+
 		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
 		System.out.println(message);
