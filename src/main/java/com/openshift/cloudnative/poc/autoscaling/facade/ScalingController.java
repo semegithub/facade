@@ -53,7 +53,7 @@ public class ScalingController {
 			generateCPU(loopNumber);
 			message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
-			String url = "http://localhost:8080/child/childHighCPULoadAll";
+			String url = "http://child-seme-lab-child.apps-crc.testing/child/childHighCPULoadAll";
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("childLoopNumber",
 					childLoopNumber);
 			String uriBuilder = builder.build().encode().toUriString();
