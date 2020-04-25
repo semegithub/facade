@@ -40,8 +40,8 @@ public class ScalingController {
 		return message;
 	}
 
-	@GetMapping(path = "/highCPURedirectCall", produces = "text/html")
-	public String highCPURedirectCall(
+	@GetMapping(path = "/highCPUChildHighCPUcall", produces = "text/html")
+	public String highCPUChildHighCPUcall(
 			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
 			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
@@ -53,7 +53,7 @@ public class ScalingController {
 
 		RestTemplate restTemplate = new RestTemplate();
 		String result = restTemplate.getForObject(
-				"http://localhost:8080/child/highCPUCall?childLoopNumber={" + childLoopNumber + "}", String.class);
+				"http://localhost:8080/child/childHighCPULoadAll?childLoopNumber={" + childLoopNumber + "}", String.class);
 		message += result;
 
 		System.out.println(message);
