@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.annotations.ApiOperation;
@@ -53,6 +54,7 @@ public class ScalingController {
 			generateCPU(loopNumber);
 			message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
+						
 			String url = "http://child-seme-lab-child.apps-crc.testing/child/childHighCPULoadAll";
 			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("childLoopNumber",
 					childLoopNumber);
