@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -40,8 +41,9 @@ public class ScalingController {
 		return message;
 	}
 
-	@GetMapping(path = "/highCPUChildHighCPUcall", produces = "text/html")
-	public String highCPUChildHighCPUcall(@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
+	@GetMapping(path = "/highCPUChildHighCPULoadAll", produces = "text/html")
+	public String highCPUChildHighCPULoadAll(
+			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
 			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade on host " + hostname + " - high CPU API redirect  ";
@@ -51,10 +53,12 @@ public class ScalingController {
 			generateCPU(loopNumber);
 			message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 
+			String url = "http://localhost:8080/child/childHighCPULoadAll";
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("childLoopNumber",
+					childLoopNumber);
+			String uriBuilder = builder.build().encode().toUriString();
 			RestTemplate restTemplate = new RestTemplate();
-			String result = restTemplate.getForObject(
-					"http://localhost:8080/child/childHighCPULoadAll",
-					String.class);
+			String result = restTemplate.getForObject(url, String.class);
 			message += result;
 		} catch (Exception e) {
 			message += e.getMessage();
