@@ -55,7 +55,7 @@ public class ScalingController {
 			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
 			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - high CPU API loadAll  ";
+		String message = "Facade on host " + hostname + " - call childHighCPULoadAll ";
 
 		try {
 			long timer = System.currentTimeMillis();
@@ -75,7 +75,7 @@ public class ScalingController {
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 //			String result = restTemplate.getForObject(url, String.class);
-			message += result.getBody().getBytes();
+			message += result.getBody();
 			message +=" done in " + (System.currentTimeMillis() - timer) + "[ms]";
 		} catch (Exception e) {
 			message += e.getMessage();
