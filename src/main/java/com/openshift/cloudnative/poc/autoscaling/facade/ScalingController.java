@@ -24,7 +24,8 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 public class ScalingController {
 
-	final static String url = "http://child-seme-lab-child.apps-crc.testing/child";
+	//final static String url = "http://child-seme-lab-child.apps-crc.testing/child";
+	final static String url = "http://child-seme-lab-child.mycluster-254101-05af698fb93eb5b37005f56f283946bf-0000.eu-de.containers.appdomain.cloud"
 
 	@GetMapping(path = "/", produces = "text/html")
 	@ApiOperation("API status")
