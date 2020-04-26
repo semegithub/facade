@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class ScalingController {
-	
+
 	final static String url = "http://child-seme-lab-child.apps-crc.testing/child";
 
 	@GetMapping(path = "/", produces = "text/html")
@@ -31,6 +31,16 @@ public class ScalingController {
 	public String status() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
 		String message = "Facade ready on host " + hostname + "\n";
+
+		System.out.println(message);
+
+		return message;
+	}
+	
+	@GetMapping(path = "/healthz")
+	public String healthz() {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade health check probe on host " + hostname + " \n";
 
 		System.out.println(message);
 
@@ -51,28 +61,29 @@ public class ScalingController {
 
 	@GetMapping(path = "/highCPUChildHighCPULoadAll", produces = "text/html")
 	public String highCPUChildHighCPULoadAll(
-			@RequestParam(value = "loopNumber", defaultValue = "1000") Integer loopNumber,
-			@RequestParam(value = "childLoopNumber", defaultValue = "1000") Integer childLoopNumber) {
+			@RequestParam(value = "stressCounter", defaultValue = "1000") Integer stressCounter,
+			@RequestParam(value = "childstressCounter", defaultValue = "1000") Integer childstressCounter) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - call childHighCPULoadAll -> (";
+		String message = "Facade on host " + hostname + " - - CPU stress counter:" + stressCounter + " - call childHighCPULoadAll -> {";
 
 		try {
 			long timer = System.currentTimeMillis();
-			generateCPU(loopNumber);
-			
-			// Prepare acceptable media type
-		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
-		    acceptableMediaTypes.add(MediaType.TEXT_HTML);
+			generateCPU(stressCounter);
 
-		    // Prepare header
-		    HttpHeaders headers = new HttpHeaders();
-		    headers.setAccept(acceptableMediaTypes);
-		    HttpEntity<String> entity = new HttpEntity<String>(headers);
-			
+			// Prepare acceptable media type
+			List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+			acceptableMediaTypes.add(MediaType.TEXT_HTML);
+
+			// Prepare header
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(acceptableMediaTypes);
+			HttpEntity<String> entity = new HttpEntity<String>(headers);
+
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> result = restTemplate.exchange(url+"/childHighCPULoadAll", HttpMethod.GET, entity, String.class, childLoopNumber);
+			ResponseEntity<String> result = restTemplate.exchange(url + "/childHighCPULoadAll", HttpMethod.GET, entity,
+					String.class, childstressCounter);
 			message += result.getBody();
-			message +=") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
+			message += "} facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
 		} catch (Exception e) {
 			message += e.getMessage();
 		} finally {
@@ -81,39 +92,43 @@ public class ScalingController {
 		return message;
 	}
 
-	@GetMapping(path = "/childLoadAll/parentCPUDelay/{counter}/childCPUDelay/{childcounter}/findAll", produces = "text/html")
-	public String childloadall(
-			@RequestParam(value = "counter", defaultValue = "0") Integer counter,
-			@RequestParam(value = "childcounter", defaultValue = "0") Integer childcounter) {
-		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " with CPU delay of " + counter + " - call childLoadAll -> (";
+//	@GetMapping(path = "/childLoadAll/parentCPUDelay/{counter}/childCPUDelay/{childcounter}/findAll, /childLoadAll/parentCPUDelay/childCPUDelay/{childcounter}/findAll, /childLoadAll/parentCPUDelay/{counter}/childCPUDelay/findAll, /childLoadAll/parentCPUDelay/childCPUDelay/findAll", produces = "text/html")
+//	public String childloadall(@PathVariable(value = "counter", required = false) Optional<Integer> counter,
+//			@RequestParam(value = "childcounter", required = false) Optional<Integer> childcounter) {
+//		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+//		String message = "Facade on host " + hostname + " with CPU delay of " + counter + " - call childLoadAll -> (";
+//
+//		try {
+//			long timer = System.currentTimeMillis();
+//			if (counter.isPresent())
+//				generateCPU(counter.get().intValue());
+//
+//			// Prepare acceptable media type
+//			List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+//			acceptableMediaTypes.add(MediaType.TEXT_HTML);
+//
+//			// Prepare header
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(acceptableMediaTypes);
+//			HttpEntity<String> entity = new HttpEntity<String>(headers);
+//			
+//			int delayCounter =0;
+//			if (!childcounter.isPresent())
+//				delayCounter = childcounter.get().intValue();
+//			
+//			RestTemplate restTemplate = new RestTemplate();
+//			ResponseEntity<String> result = restTemplate.exchange(url + "/childCPUDelay/" + delayCounter + "/findAll",
+//					HttpMethod.GET, entity, String.class);
+//			message += result.getBody();
+//			message += ") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
+//		} catch (Exception e) {
+//			message += e.getMessage();
+//		} finally {
+//			System.out.println(message);
+//		}
+//		return message;
+//	}
 
-		try {
-			long timer = System.currentTimeMillis();
-			generateCPU(counter);
-			
-			// Prepare acceptable media type
-		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
-		    acceptableMediaTypes.add(MediaType.TEXT_HTML);
-
-		    // Prepare header
-		    HttpHeaders headers = new HttpHeaders();
-		    headers.setAccept(acceptableMediaTypes);
-		    HttpEntity<String> entity = new HttpEntity<String>(headers);
-			
-			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> result = restTemplate.exchange(url+"/childCPUDelay/" + childcounter + "/findAll", HttpMethod.GET, entity, String.class);
-			message += result.getBody();
-			message +=") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
-		} catch (Exception e) {
-			message += e.getMessage();
-		} finally {
-			System.out.println(message);
-		}
-		return message;
-	}
-
-	
 	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
 	public String highCPURedirectCall() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
