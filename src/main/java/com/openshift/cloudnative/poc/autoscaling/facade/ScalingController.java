@@ -81,6 +81,39 @@ public class ScalingController {
 		return message;
 	}
 
+	@GetMapping(path = "/childLoadAll/parentCPUDelay/{counter}/childCPUDelay/{childcounter}/findAll", produces = "text/html")
+	public String childloadall(
+			@RequestParam(value = "counter", defaultValue = "0") Integer counter,
+			@RequestParam(value = "childcounter", defaultValue = "0") Integer childcounter) {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade on host " + hostname + " with CPU delay of " + counter + " - call childLoadAll -> (";
+
+		try {
+			long timer = System.currentTimeMillis();
+			generateCPU(counter);
+			
+			// Prepare acceptable media type
+		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+		    acceptableMediaTypes.add(MediaType.TEXT_HTML);
+
+		    // Prepare header
+		    HttpHeaders headers = new HttpHeaders();
+		    headers.setAccept(acceptableMediaTypes);
+		    HttpEntity<String> entity = new HttpEntity<String>(headers);
+			
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> result = restTemplate.exchange(url+"/childCPUDelay/" + childcounter + "/findAll", HttpMethod.GET, entity, String.class);
+			message += result.getBody();
+			message +=") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
+		} catch (Exception e) {
+			message += e.getMessage();
+		} finally {
+			System.out.println(message);
+		}
+		return message;
+	}
+
+	
 	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
 	public String highCPURedirectCall() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
