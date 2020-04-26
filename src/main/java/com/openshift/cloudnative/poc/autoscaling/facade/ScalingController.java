@@ -49,6 +49,7 @@ public class ScalingController {
 	}
 
 	@GetMapping(path = "/highCPUChildHighCPULoadAll", produces = "text/html")
+	@ApiOperation(value = "High CPU API call + DB LoadAll")
 	public String highCPUChildHighCPULoadAll(
 			@RequestParam(value = "stressCounter", defaultValue = "1000") Integer stressCounter,
 			@RequestParam(value = "childstressCounter", defaultValue = "1000") Integer childstressCounter) {
@@ -83,6 +84,7 @@ public class ScalingController {
 	}
 	
 	@GetMapping(path = "/highCPUChildHighCPUCall", produces = "text/html")
+	@ApiOperation(value = "High CPU API remote call")
 	public String highCPUChildHighCPUCall(
 			@RequestParam(value = "stressCounter", defaultValue = "1000") Integer stressCounter,
 			@RequestParam(value = "childstressCounter", defaultValue = "1000") Integer childstressCounter) {
@@ -156,7 +158,7 @@ public class ScalingController {
 
 
 	@GetMapping(path = "/highCPUCall", produces = "text/html")
-	@ApiOperation(value = "Heavy CPU API call")
+	@ApiOperation(value = "High CPU API call")
 	public String highCPUcall(
 			@RequestParam(value = "stressCounter", required = false, defaultValue = "1000") Integer stressCounter) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
