@@ -103,7 +103,7 @@ public class ScalingController {
 			HttpEntity<String> entity = new HttpEntity<String>(headers);
 
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> result = restTemplate.exchange(url + "/highCPUCall", HttpMethod.GET, entity,
+			ResponseEntity<String> result = restTemplate.exchange(url + "/childHighCPUCall", HttpMethod.GET, entity,
 					String.class, childstressCounter);
 			message += result.getBody();
 			message += "} facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
