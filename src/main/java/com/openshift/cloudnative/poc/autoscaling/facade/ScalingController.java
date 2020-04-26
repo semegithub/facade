@@ -36,7 +36,7 @@ public class ScalingController {
 
 		return message;
 	}
-	
+
 	@GetMapping(path = "/healthz")
 	public String healthz() {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
@@ -47,24 +47,13 @@ public class ScalingController {
 		return message;
 	}
 
-	@GetMapping(path = "/noCPUcall", produces = "text/html")
-	@ApiOperation("Direct API call")
-	public String noCPUcall() {
-		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname;
-		long timer = System.currentTimeMillis();
-		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
-		System.out.println(message);
-
-		return message;
-	}
-
 	@GetMapping(path = "/highCPUChildHighCPULoadAll", produces = "text/html")
 	public String highCPUChildHighCPULoadAll(
 			@RequestParam(value = "stressCounter", defaultValue = "1000") Integer stressCounter,
 			@RequestParam(value = "childstressCounter", defaultValue = "1000") Integer childstressCounter) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - - CPU stress counter:" + stressCounter + " - call childHighCPULoadAll -> {";
+		String message = "Facade on host " + hostname + " - CPU stress counter:" + stressCounter
+				+ " - call childHighCPULoadAll -> {";
 
 		try {
 			long timer = System.currentTimeMillis();
@@ -91,6 +80,41 @@ public class ScalingController {
 		}
 		return message;
 	}
+	
+	@GetMapping(path = "/highCPUChildHighCPUCall", produces = "text/html")
+	public String highCPUChildHighCPUCall(
+			@RequestParam(value = "stressCounter", defaultValue = "1000") Integer stressCounter,
+			@RequestParam(value = "childstressCounter", defaultValue = "1000") Integer childstressCounter) {
+		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+		String message = "Facade on host " + hostname + " - CPU stress counter:" + stressCounter
+				+ " - call childHighCPUCall -> {";
+
+		try {
+			long timer = System.currentTimeMillis();
+			generateCPU(stressCounter);
+
+			// Prepare acceptable media type
+			List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
+			acceptableMediaTypes.add(MediaType.TEXT_HTML);
+
+			// Prepare header
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(acceptableMediaTypes);
+			HttpEntity<String> entity = new HttpEntity<String>(headers);
+
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> result = restTemplate.exchange(url + "/childHighCPUCall", HttpMethod.GET, entity,
+					String.class, childstressCounter);
+			message += result.getBody();
+			message += "} facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
+		} catch (Exception e) {
+			message += e.getMessage();
+		} finally {
+			System.out.println(message);
+		}
+		return message;
+	}
+
 
 //	@GetMapping(path = "/childLoadAll/parentCPUDelay/{counter}/childCPUDelay/{childcounter}/findAll, /childLoadAll/parentCPUDelay/childCPUDelay/{childcounter}/findAll, /childLoadAll/parentCPUDelay/{counter}/childCPUDelay/findAll, /childLoadAll/parentCPUDelay/childCPUDelay/findAll", produces = "text/html")
 //	public String childloadall(@PathVariable(value = "counter", required = false) Optional<Integer> counter,
@@ -129,30 +153,15 @@ public class ScalingController {
 //		return message;
 //	}
 
-	@GetMapping(path = "/noCPURedirectCall", produces = "text/html")
-	public String highCPURedirectCall() {
-		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - no CPU API redirect  ";
-
-		long timer = System.currentTimeMillis();
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject("http://localhost:8080/child/noCPUCall", String.class);
-		message += result;
-
-		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
-
-		System.out.println(message);
-		return message;
-	}
 
 	@GetMapping(path = "/highCPUCall", produces = "text/html")
-	@ApiOperation(value = "Heavy CPU API call", notes = "Generate CPU by looping on cipher.update(), default value for the number of loops is 1000.")
+	@ApiOperation(value = "Heavy CPU API call")
 	public String highCPUcall(
-			@RequestParam(value = "loopNumber", required = false, defaultValue = "1000") Integer loopNumber) {
+			@RequestParam(value = "stressCounter", required = false, defaultValue = "1000") Integer stressCounter) {
 		String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-		String message = "Facade on host " + hostname + " - high CPU API call ";
+		String message = "Facade on host " + hostname + " - CPU stress counter:" + stressCounter;
 		long timer = System.currentTimeMillis();
-		generateCPU(loopNumber);
+		generateCPU(stressCounter);
 		message += " done in " + (System.currentTimeMillis() - timer) + "[ms]";
 		System.out.println(message);
 		return message;
