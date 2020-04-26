@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 public class ScalingController {
 	
-	String url = "http://child-seme-lab-child.apps-crc.testing/child";
+	final static String url = "http://child-seme-lab-child.apps-crc.testing/child";
 
 	@GetMapping(path = "/", produces = "text/html")
 	@ApiOperation("API status")
@@ -59,8 +59,6 @@ public class ScalingController {
 		try {
 			long timer = System.currentTimeMillis();
 			generateCPU(loopNumber);
-									
-			url += "/childHighCPULoadAll";
 			
 			// Prepare acceptable media type
 		    List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
@@ -72,8 +70,7 @@ public class ScalingController {
 		    HttpEntity<String> entity = new HttpEntity<String>(headers);
 			
 			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> result = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, childLoopNumber);
-//			String result = restTemplate.getForObject(url, String.class);
+			ResponseEntity<String> result = restTemplate.exchange(url+"/childHighCPULoadAll", HttpMethod.GET, entity, String.class, childLoopNumber);
 			message += result.getBody();
 			message +=") facade call done in " + (System.currentTimeMillis() - timer) + "[ms]";
 		} catch (Exception e) {
